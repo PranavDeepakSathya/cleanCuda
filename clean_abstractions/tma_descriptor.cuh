@@ -12,16 +12,13 @@ private:
   static PFN_cuTensorMapEncodeTiled_v12000 load_symbol() {
     cudaDriverEntryPointQueryResult driver_status;
     void* ptr = nullptr;
-
     cudaError_t err = cudaGetDriverEntryPointByVersion(
       "cuTensorMapEncodeTiled", &ptr, 12000, cudaEnableDefault, &driver_status
     );
-
     if (err != cudaSuccess || driver_status != cudaDriverEntryPointSuccess) {
       fprintf(stderr, "[TMA Error] Failed to load cuTensorMapEncodeTiled. Requires CUDA Driver 12+.\n");
       exit(EXIT_FAILURE);
     }
-
     return reinterpret_cast<PFN_cuTensorMapEncodeTiled_v12000>(ptr);
   }
 };
@@ -29,59 +26,45 @@ private:
 template <typename T>
 class TmaDescriptor {
 public:
-  static CUtensorMap create_2d_row_major(
+  template <int Rank>
+  static CUtensorMap create_with_layout(
     T* global_address,
-    std::pair<uint64_t, uint64_t> logical_shape,
-    std::pair<uint32_t, uint32_t> box_shape,
-    CUtensorMapSwizzle swizzle_mode = CU_TENSOR_MAP_SWIZZLE_NONE,
-    CUtensorMapL2promotion l2_promo = CU_TENSOR_MAP_L2_PROMOTION_NONE
-  ) {
-    auto [rows, cols] = logical_shape;
-    auto [box_r, box_c] = box_shape;
+    const std::array<uint64_t, Rank>& logical_dims,
+    const std::array<uint32_t, Rank>& box_dims,
+    const std::array<int, Rank>& layout,
+    CUtensorMapSwizzle swizzle = CU_TENSOR_MAP_SWIZZLE_NONE,
+    CUtensorMapInterleave interleave = CU_TENSOR_MAP_INTERLEAVE_NONE,
+    CUtensorMapL2promotion l2_promo = CU_TENSOR_MAP_L2_PROMOTION_NONE,
+    CUtensorMapFloatOOBfill oob_fill = CU_TENSOR_MAP_FLOAT_OOB_FILL_NONE)
+  {
+    uint64_t g_dims[Rank];
+    uint64_t g_strides[Rank - 1];
+    uint32_t b_dims[Rank];
+    uint32_t e_strides[Rank];
 
-    uint64_t g_dims[2] = {cols, rows};
-    uint64_t g_strides[1] = {cols * sizeof(T)};
-    uint32_t b_dims[2] = {box_c, box_r};
-    uint32_t e_strides[2] = {1, 1};
+    for (int i = 0; i < Rank; i++) {
+      g_dims[i] = logical_dims[layout[i]];
+      b_dims[i] = box_dims[layout[i]];
+      e_strides[i] = 1;
+    }
+
+    uint64_t stride = sizeof(T);
+    for (int i = 0; i < Rank - 1; i++) {
+      stride *= g_dims[i];
+      g_strides[i] = stride;
+    }
 
     return create_raw(
       global_address,
-      2,
+      Rank,
       g_dims,
       g_strides,
       b_dims,
       e_strides,
-      swizzle_mode,
-      CU_TENSOR_MAP_INTERLEAVE_NONE,
-      l2_promo
-    );
-  }
-
-  static CUtensorMap create_2d_col_major(
-    T* global_address,
-    std::pair<uint64_t, uint64_t> logical_shape,
-    std::pair<uint32_t, uint32_t> box_shape,
-    CUtensorMapSwizzle swizzle_mode = CU_TENSOR_MAP_SWIZZLE_NONE,
-    CUtensorMapL2promotion l2_promo = CU_TENSOR_MAP_L2_PROMOTION_NONE
-  ) {
-    auto [rows, cols] = logical_shape;
-    auto [box_r, box_c] = box_shape;
-
-    uint64_t g_dims[2] = {rows, cols};
-    uint64_t g_strides[1] = {rows * sizeof(T)};
-    uint32_t b_dims[2] = {box_r, box_c};
-    uint32_t e_strides[2] = {1, 1};
-
-    return create_raw(
-      global_address,
-      2,
-      g_dims,
-      g_strides,
-      b_dims,
-      e_strides,
-      swizzle_mode,
-      CU_TENSOR_MAP_INTERLEAVE_NONE,
-      l2_promo
+      swizzle,
+      interleave,
+      l2_promo,
+      oob_fill
     );
   }
 
@@ -94,8 +77,9 @@ public:
     uint32_t* element_strides,
     CUtensorMapSwizzle swizzle,
     CUtensorMapInterleave interleave,
-    CUtensorMapL2promotion l2_promo
-  ) {
+    CUtensorMapL2promotion l2_promo,
+    CUtensorMapFloatOOBfill oob_fill = CU_TENSOR_MAP_FLOAT_OOB_FILL_NONE)
+  {
     CUtensorMap tma_map{};
     auto encoder = TmaLoader::get_encoder();
 
@@ -111,7 +95,7 @@ public:
       interleave,
       swizzle,
       l2_promo,
-      CU_TENSOR_MAP_FLOAT_OOB_FILL_NONE
+      oob_fill
     );
 
     if (res != CUDA_SUCCESS) {

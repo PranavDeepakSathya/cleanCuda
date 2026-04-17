@@ -1,24 +1,23 @@
 #pragma once
 #include "utils.cuh"
+#include <cuda_runtime.h>
 
-
-class KernelLauncher {
+class NaiveLauncher {
 public:
   int grid_size_clusters;   
   int cluster_size_blocks;  
   int block_size_threads;   
   int smem_bytes;           
 
-  KernelLauncher(int g_clusters, int c_blocks, int b_threads, int smem = 0) 
-      : grid_size_clusters(g_clusters), 
-        cluster_size_blocks(c_blocks), 
-        block_size_threads(b_threads), 
-        smem_bytes(smem) {}
+  NaiveLauncher(int g_clusters, int c_blocks, int b_threads, int smem = 0) 
+    : grid_size_clusters(g_clusters), 
+      cluster_size_blocks(c_blocks), 
+      block_size_threads(b_threads), 
+      smem_bytes(smem) {}
 
   template <typename KernelFunc, typename... KernelArgs>
-  void launch(KernelFunc kernel, KernelArgs... args) 
-  {
-        
+  void launch(KernelFunc kernel, KernelArgs... args) {
+      
     int total_blocks = grid_size_clusters * cluster_size_blocks;
 
     cudaLaunchConfig_t config = {0};
@@ -42,13 +41,12 @@ public:
       cudaSharedmemCarveoutMaxShared
     ));
 
-
     CHECK_CUDA(cudaFuncSetAttribute(
       kernel,
       cudaFuncAttributeMaxDynamicSharedMemorySize,
       smem_bytes
     ));
 
-      CHECK_CUDA(cudaLaunchKernelEx(&config, kernel, args...));
+    CHECK_CUDA(cudaLaunchKernelEx(&config, kernel, args...));
   }
 };

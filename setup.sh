@@ -7,6 +7,7 @@ pip install triton
 pip install torch
 pip install matplotlib
 pip install pandas
+pip install ninja
 
 git config --global user.email sathya.pranav.deepak@gmail.com
 git config --global user.name PranavDeepakSathya
