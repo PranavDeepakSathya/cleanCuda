@@ -74,7 +74,7 @@ def valid(c):
     # ── register pressure estimate ────────────────────────────────────────────
     # ra[apm][4] + rb[apn][2] + rc[apm][apn][4] + ~40 overhead (addresses,
     # loop vars, TMA descriptors, mbarrier state, etc.)
-    regs_est = ((apm * 4) + (apn * 2))*wk_stages + apm * apn * 4 + 40
+    regs_est = ((apm * 4) + (apn * 2)) + apm * apn * 4 + 40
     if regs_est > MAX_REGS_PER_THREAD:                           return False
 
     # need at least 1 block fitting in SM register file
