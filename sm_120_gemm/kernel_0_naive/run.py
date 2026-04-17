@@ -9,8 +9,9 @@ import triton.testing
 GPU_NAME = torch.cuda.get_device_name()
 print(f"\n=== GPU: {GPU_NAME} ===")
 
-# ── config: load from results json if exists, else use defaults ───────────────
-RESULTS = Path(__file__).parent / "autotune_results.json"
+# in run.py, replace the RESULTS = ... line
+_gpu_tag = torch.cuda.get_device_name(0).replace(" ", "_").replace("/", "_")
+RESULTS = Path(__file__).parent / f"autotune_results.{_gpu_tag}.json"
 
 if RESULTS.exists():
     with open(RESULTS) as f:

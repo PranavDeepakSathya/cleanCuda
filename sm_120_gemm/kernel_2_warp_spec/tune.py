@@ -131,7 +131,8 @@ with ProcessPoolExecutor(max_workers=_max_compile) as pool:
 print(f"\n{len(compiled)} compiled, {failed} failed — benchmarking...\n")
 
 # ── sequential bench ──────────────────────────────────────────────────────────
-RESULTS = Path(__file__).parent / "autotune_results.json"
+_gpu_tag = torch.cuda.get_device_name(0).replace(" ", "_").replace("/", "_")
+RESULTS = Path(__file__).parent / f"autotune_results.{_gpu_tag}.json"
 results = json.loads(RESULTS.read_text()) if RESULTS.exists() else []
 done    = {r["name"] for r in results}
 
