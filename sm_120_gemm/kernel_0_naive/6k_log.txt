@@ -1,0 +1,31 @@
+
+=== GPU: NVIDIA RTX PRO 6000 Blackwell Server Edition ===
+loaded best config from tune: 250.06 TFLOP/s
+
+=== Config ===
+  ACC_PER_WARP_M = 4
+  ACC_PER_WARP_N = 8
+  WARPS_PER_BLOCK_M = 2
+  WARPS_PER_BLOCK_N = 2
+  BLOCK_K = 32
+
+shape: M=8192 N=8192 K=8192
+
+=== Correctness ===
+max  : 5.920410e-03
+mean : 6.425385e-04
+p99  : 2.243042e-03
+nan  : False
+
+=== Benchmark ===
+avg  : 4.3992 ms  |  249.94 TFLOP/s
+median (triton): 4.3991 ms  |  249.94 TFLOP/s
+
+=== torch.matmul reference ===
+dispatched kernel: void cutlass::Kernel2<cutlass_80_tensorop_bf16_s16816gemm_relu_bf16_256x128_32x3_tn_align8>(cutlass_80_tensorop_bf16_s16816gemm_relu_bf16_256x128_32x3_tn_align8::Params)
+median (triton): 2.5344 ms  |  433.84 TFLOP/s
+
+=== Relative ===
+ours   : 4.3991 ms  |  249.94 TFLOP/s
+torch  : 2.5344 ms  |  433.84 TFLOP/s
+speedup: 0.576x  (-42.4%)

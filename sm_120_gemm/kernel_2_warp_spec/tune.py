@@ -112,7 +112,7 @@ compiled, failed = [], 0
 work = [(c, SRC, (M, N, K)) for c in combos]
 
 
-with ProcessPoolExecutor(max_workers=32) as pool:
+with ProcessPoolExecutor(max_workers=48) as pool:
     futs = {pool.submit(compile_one, w): w for w in work}
     for i, fut in enumerate(as_completed(futs), 1):
         cfg, name, err = fut.result()
