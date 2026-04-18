@@ -101,13 +101,7 @@ def compile_one(item):
 compiled, failed = [], 0
 work = [(c, SRC, (M, N, K)) for c in combos]
 
-import psutil
-_avail_gb = psutil.virtual_memory().available / (1024**3)
-_nvcc_est_gb = 6  # conservative per-process estimate for nvcc -O3 on template CUDA
-_max_compile = max(1, int(_avail_gb // _nvcc_est_gb))
-print(f"available RAM: {_avail_gb:.1f} GB → {_max_compile} parallel compiles\n")
-
-with ProcessPoolExecutor(max_workers=_max_compile) as pool:
+with ProcessPoolExecutor(max_workers=32) as pool:
     futs = {pool.submit(compile_one, w): w for w in work}
     for i, fut in enumerate(as_completed(futs), 1):
         cfg, name, err = fut.result()

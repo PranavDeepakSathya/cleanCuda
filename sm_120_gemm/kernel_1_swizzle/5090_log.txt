@@ -1,6 +1,6 @@
 
 === GPU: NVIDIA GeForce RTX 5090 ===
-loaded best config from tune: 215.05 TFLOP/s
+loaded best config from tune: 214.90 TFLOP/s
 
 === Config ===
   ACC_PER_WARP_M = 4
@@ -20,14 +20,14 @@ p99  : 2.243042e-03
 nan  : False
 
 === Benchmark ===
-avg  : 5.2689 ms  |  208.68 TFLOP/s
-median (triton): 5.1574 ms  |  213.19 TFLOP/s
+avg  : 5.2754 ms  |  208.42 TFLOP/s
+median (triton): 5.1277 ms  |  214.43 TFLOP/s
 
 === torch.matmul reference ===
 dispatched kernel: void cutlass::Kernel2<cutlass_80_tensorop_bf16_s16816gemm_relu_bf16_128x64_64x3_tn_align8>(cutlass_80_tensorop_bf16_s16816gemm_relu_bf16_128x64_64x3_tn_align8::Params)
-median (triton): 4.8788 ms  |  225.36 TFLOP/s
+median (triton): 4.8198 ms  |  228.13 TFLOP/s
 
 === Relative ===
-ours   : 5.1574 ms  |  213.19 TFLOP/s
-torch  : 4.8788 ms  |  225.36 TFLOP/s
-speedup: 0.946x  (-5.4%)
+ours   : 5.1277 ms  |  214.43 TFLOP/s
+torch  : 4.8198 ms  |  228.13 TFLOP/s
+speedup: 0.940x  (-6.0%)
