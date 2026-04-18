@@ -76,7 +76,7 @@ def valid(c):
     # ── register pressure estimate ────────────────────────────────────────────
     # ra[apm][4] + rb[apn][2] + rc[apm][apn][4] + ~40 overhead (addresses,
     # loop vars, TMA descriptors, mbarrier state, etc.)
-    regs_est = ((apm * 4) + (apn * 2))*wk_stages + apm * apn * 4 + 40
+    regs_est = ((apm * 4) + (apn * 2)) + apm * apn * 4 + 40
     if regs_est > MAX_REGS_PER_THREAD:                           return False
 
     # need at least 1 block fitting in SM register file
@@ -113,7 +113,7 @@ def compile_one(item):
 compiled, failed = [], 0
 work = [(c, SRC, (M, N, K)) for c in combos]
 
-with ProcessPoolExecutor(max_workers=32) as pool:
+with ProcessPoolExecutor(max_workers=48) as pool:
     futs = {pool.submit(compile_one, w): w for w in work}
     for i, fut in enumerate(as_completed(futs), 1):
         cfg, name, err = fut.result()
