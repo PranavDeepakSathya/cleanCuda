@@ -309,3 +309,24 @@ __device__ __forceinline__ void cp_async_wait_group() {
     : "memory"
   );
 }
+
+//tmem is allocated with 1 warp, it is 128x512 32-bit, and you allocate by giving num columns, and all the rows 
+//in a column is allocated 
+__device__ __forceinline__ void tcgen05_alloc(int* tmem_addr_smem, int num_cols) {
+  const int addr = static_cast<int>(__cvta_generic_to_shared(tmem_addr_smem));
+  asm volatile(
+    "tcgen05.alloc.cta_group::1.sync.aligned.shared::cta.b32 [%0], %1;"
+    :: "r"(addr), "r"(num_cols)
+  );
+}
+
+__device__ __forceinline__ void tcgen05_dealloc(int taddr, int num_cols) {
+  asm volatile(
+    "tcgen05.dealloc.cta_group::1.sync.aligned.b32 %0, %1;"
+    :: "r"(taddr), "r"(num_cols)
+  );
+}
+
+__device__ __forceinline__ void tcgen05_relinquish_alloc_permit() {
+  asm volatile("tcgen05.relinquish_alloc_permit.cta_group::1.sync.aligned;");
+}
