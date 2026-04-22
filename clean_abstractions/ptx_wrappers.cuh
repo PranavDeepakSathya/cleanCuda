@@ -330,3 +330,4 @@ __device__ __forceinline__ void tcgen05_dealloc(int taddr, int num_cols) {
 __device__ __forceinline__ void tcgen05_relinquish_alloc_permit() {
   asm volatile("tcgen05.relinquish_alloc_permit.cta_group::1.sync.aligned;");
 }
+
