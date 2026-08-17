@@ -23,7 +23,7 @@ cuda_image = (
     .add_local_dir(
         REPO_DIR,
         remote_path=str(REMOTE_REPO),
-        ignore=[".git", ".kernel_lab", "venv", "__pycache__", "*.ipynb"],
+        ignore=[".git", ".kernel_lab", ".venv", "venv", "__pycache__", "*.ipynb"],
     )
 )
 
