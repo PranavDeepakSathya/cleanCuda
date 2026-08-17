@@ -64,3 +64,25 @@ def product(A:Layout, B:Layout):
   A_c = A.construct_N_complement(A.size*B.cosize)
   cat = concatenate([A, compose(B,A_c)])
   return cat
+
+def blocked_product(A: Layout, B: Layout):
+    P = product(A, B)
+
+    r = P.get_mode(0).rank
+
+    shape = NestedTuple.from_literal(
+        
+            tuple(P.shape.get_mode(0).get_mode(i).int_tuple +
+            P.shape.get_mode(1).get_mode(i).int_tuple
+            for i in range(r))
+    )
+
+    stride = NestedTuple.from_literal(
+        
+            tuple(P.stride.get_mode(0).get_mode(i).int_tuple+
+            P.stride.get_mode(1).get_mode(i).int_tuple
+        
+            for i in range(r))
+    )
+
+    return Layout(shape, stride)

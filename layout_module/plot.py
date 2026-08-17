@@ -5,17 +5,26 @@ from .layout import Layout
 
 
 def plot_layout(L, title=None, ax=None, cmap="viridis"):
-    if L.rank != 2:
+    if L.rank == 1:
+        M = L.get_mode(0).size
+        N = 1
+
+        grid = np.zeros((M, N), dtype=int)
+        for i in range(M):
+            grid[i, 0] = L((i,))
+
+    elif L.rank == 2:
+        M = L.get_mode(0).size
+        N = L.get_mode(1).size
+
+        grid = np.zeros((M, N), dtype=int)
+        for i in range(M):
+            for j in range(N):
+                grid[i, j] = L((i, j))
+
+    else:
         print(f"layout rank is {L.rank}, not plotting")
         return
-
-    M = L.get_mode(0).size
-    N = L.get_mode(1).size
-
-    grid = np.zeros((M, N), dtype=int)
-    for i in range(M):
-        for j in range(N):
-            grid[i, j] = L((i, j))
 
     if ax is None:
         fig, ax = plt.subplots(figsize=(max(4, N * 0.6), max(4, M * 0.6)))
@@ -28,11 +37,16 @@ def plot_layout(L, title=None, ax=None, cmap="viridis"):
             v = grid[i, j]
             norm = (v - vmin) / max(vmax - vmin, 1)
             color = "white" if norm < 0.55 else "black"
-            ax.text(j, i, str(v), ha="center", va="center",
-                    color=color, fontsize=10, fontweight="bold")
+            ax.text(
+                j, i, str(v),
+                ha="center", va="center",
+                color=color, fontsize=10, fontweight="bold"
+            )
 
     _draw_mode_brackets(ax, L.shape.get_mode(0), axis=0, M=M, N=N)
-    _draw_mode_brackets(ax, L.shape.get_mode(1), axis=1, M=M, N=N)
+
+    if L.rank == 2:
+        _draw_mode_brackets(ax, L.shape.get_mode(1), axis=1, M=M, N=N)
 
     ax.set_xticks(np.arange(N))
     ax.set_yticks(np.arange(M))
@@ -46,7 +60,8 @@ def plot_layout(L, title=None, ax=None, cmap="viridis"):
     header = f"{shape_str} : {stride_str}"
     ax.set_title(f"{title}\n{header}" if title else header, fontsize=11)
 
-    ax.set_xlabel("mode 1")
+    if L.rank == 2:
+        ax.set_xlabel("mode 1")
     ax.set_ylabel("mode 0")
 
     plt.tight_layout()

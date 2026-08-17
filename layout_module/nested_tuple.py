@@ -22,6 +22,7 @@ class NestedTuple:
     def walk(x):
       if isinstance(x, int):
         return Profile(Atom.STAR), [x]
+      
 
       if isinstance(x, tuple):
         if len(x) == 0:

@@ -20,6 +20,19 @@ class Layout:
   stride: NestedTuple
 
   def __post_init__(self):
+    if not isinstance(self.shape, NestedTuple):
+      object.__setattr__(
+          self,
+          "shape",
+          NestedTuple.from_literal(self.shape)
+      )
+
+    if not isinstance(self.stride, NestedTuple):
+        object.__setattr__(
+            self,
+            "stride",
+            NestedTuple.from_literal(self.stride)
+        )
     assert isinstance(self.shape, NestedTuple)
     assert isinstance(self.stride, NestedTuple)
     assert self.shape.prof == self.stride.prof

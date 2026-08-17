@@ -4,6 +4,7 @@
 *.ptx
 *.cubin
 *.fatbin
+.kernel_lab/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
